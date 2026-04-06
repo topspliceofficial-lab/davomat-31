@@ -183,7 +183,13 @@ async def get_class(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def get_absent_students(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text.strip()
 
-    if text.lower() in ["hamma keldi", "hamma kelgan", "hammasi keldi", "yo'q"]:
+    # Normalize: Cyrillic → Latin, x → h, then lowercase for flexible matching
+    normalized = text.lower()
+    cyrillic_to_latin = {"х": "h", "а": "a", "м": "m", "к": "k", "е": "e", "л": "l", "д": "d", "и": "i", "о": "o", "г": "g", "н": "n", "б": "b", "с": "s", "ё": "yo"}
+    for cyr, lat in cyrillic_to_latin.items():
+        normalized = normalized.replace(cyr, lat)
+    normalized = normalized.replace("x", "h")
+    if normalized in ["hamma keldi", "hamma kelgan", "hammasi keldi", "yo'q"]:
         context.user_data["absent_students"] = []
         context.user_data["all_present"] = True
     else:
